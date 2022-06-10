@@ -7,5 +7,6 @@ module.exports = {
                 BAD_REQUEST : "BAD_REQUEST",
                 NOT_FOUND : "NOT_FOUND",
                 ACCESS_FORBIDDEN : "ACCESS_FORBIDDEN",
-                NO_APPOINTMENT_FOUND : "NO APPOINTMENT Found"
+                NO_APPOINTMENT_FOUND : "NO APPOINTMENT Found",
+                APPOINTMENT_ALREADY_EXISTS : "APPOINTMENT ALREADY EXISTS ON SAME DAY"
 }
