@@ -9,6 +9,10 @@ const appointmentSchema = new mongoose.Schema(
       type: Date,
       default: new Date(Date.now() + 4 * 1000 * 60 * 60),
     },
+    isCanceled: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

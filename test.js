@@ -19,10 +19,16 @@
 
 // console.log(skip);
 
-const lastDate = {
-  6: "30",
-};
-const year = new Date().getFullYear();
-const month = undefined || new Date().getMonth() + 1;
 
-console.log(new Date(`${year}-${month}-${lastDate[month]}`).toLocaleString());
+
+// const date = new Date(new Date('2022-09-08').getTime() - (7 * 1000 * 60 * 60 * 24 ))
+
+// console.log(date <= new Date('2022-09-01'));
+// const sevenDaysBefore = new Date(Date.now()  - (7 * 1000 * 60 * 60 * 24)).getDate()
+// console.log(sevenDaysBefore);
+
+// const date = new Date('2021-03-20').getDate()
+// console.log(date);
+let a,b
+true ? (a = "swapan",b = "kumar") : {}
+console.log(a,b);
