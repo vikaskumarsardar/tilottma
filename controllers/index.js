@@ -1,5 +1,6 @@
-const {createAppointment,getAppointments}  = require('./appointment')
+const {createAppointment,getAppointments,getAllAppointments}  = require('./appointment')
 module.exports = {
                  createAppointment :createAppointment,
-                 getAppointments : getAppointments
+                 getAppointments : getAppointments,
+                 getAllAppointments
 }

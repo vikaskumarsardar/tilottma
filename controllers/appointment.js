@@ -50,23 +50,29 @@ exports.getAppointments = async (req, res) => {
     let firstDate;
     let lastDate;
     month = date.getMonth() + 1;
-    month = month < 10 ? "0" + month.toString() : month;
+    month = month < 10 ? "0" + month.toString() : month.toString();
+    let sevenDaysBefore = new Date(
+      date.getTime() - 6 * 1000 * 60 * 60 * 24
+    ).getDate();
+    sevenDaysBefore =
+      sevenDaysBefore < 10 ? "0" + sevenDaysBefore.toString() : sevenDaysBefore;
     lastDate =
       parseInt(month) === 2 && year % 4 === 0
         ? "29"
         : constants.months[parseInt(month)];
+    let getDate = date.getDate();
+    getDate = getDate < 10 ? "0" + getDate.toString() : getDate.toString();
     search = search || "";
     filterBy === "week"
-      ? ((firstDate = new Date(
-          date.getTime() - 7 * 1000 * 60 * 60 * 24
-        ).getDate()),
-        ((lastDate = date.getDate()),
-        (firstMonth = month),
+      ? ((firstDate = sevenDaysBefore),
+        ((lastDate = getDate),
+        (firstMonth =
+          parseInt(sevenDaysBefore) > parseInt(lastDate)
+            ? parseInt(month) - 1
+            : month),
         (lastMonth = month)))
       : filterBy === "specificDate"
-      ? ((firstDate = date.getDate()),
-        (firstMonth = month),
-        (lastMonth = month))
+      ? ((firstDate = getDate), (firstMonth = month), (lastMonth = month))
       : filterBy === "year"
       ? ((firstDate = "01"),
         (lastDate = "31"),
@@ -74,9 +80,9 @@ exports.getAppointments = async (req, res) => {
         (lastMonth = "12"))
       : filterBy === "month"
       ? ((firstDate = "01"), (firstMonth = month), (lastMonth = month))
-      : ((firstDate = date.getDate()),
+      : ((firstDate = getDate),
         (firstMonth = month),
-        (lastDate = date.getDate()),
+        (lastDate = getDate),
         (lastMonth = month));
     const skip = Math.max(0, (parseInt(pageNo) || 1) - 1) * limit;
     const query = { isCanceled: false };
@@ -84,22 +90,28 @@ exports.getAppointments = async (req, res) => {
       {
         date: {
           $gte: new Date(`${year}-${firstMonth}-${firstDate}`),
-          $lte: new Date(`${year}-${lastMonth}-${lastDate}`),
+          $lt: new Date(
+            new Date(`${year}-${lastMonth}-${lastDate}`).getTime() +
+              24 * 1000 * 60 * 60
+          ),
         },
       },
       {
         appointment: { $regex: search, $options: "$i" },
       },
     ];
+
     const appointmentCount = await appointmentModel
       .countDocuments(query)
       .exec();
     const pageCount = Math.ceil(appointmentCount / limit);
+    console.log();
 
     const foundAppointments = await appointmentModel
       .find(query, { isCanceled: 0, __v: 0, createdAt: 0, updatedAt: 0 })
       .limit(limit)
       .skip(skip)
+      .sort({ date: 1 })
       .lean()
       .exec();
 
@@ -115,6 +127,28 @@ exports.getAppointments = async (req, res) => {
           pageCount,
           appointments: foundAppointments,
         });
+  } catch (err) {
+    console.log(err);
+    sendErrorResponse(
+      req,
+      res,
+      statusCodes.INTERNAL_SERVER_ERROR,
+      messages.INTERNAL_SERVER_ERROR
+    );
+  }
+};
+
+exports.getAllAppointments = async (req, res) => {
+  try {
+    const foundAppointments = await appointmentModel
+      .find({})
+      .sort({ date: 1 })
+      .lean()
+      .exec();
+    sendResponse(req, res, statusCodes.OK, messages.SUCCESS, {
+      itemCount: foundAppointments.length,
+      foundAppointments,
+    });
   } catch (err) {
     console.log(err);
     sendErrorResponse(
