@@ -29,6 +29,7 @@
 
 // const date = new Date('2021-03-20').getDate()
 // console.log(date);
-let a,b
-true ? (a = "swapan",b = "kumar") : {}
-console.log(a,b);
+let month,date = new Date("2024-02-19")
+month = date.getMonth() + 100
+month = month < 10 ? '0' + month.toString() : month
+console.log(parseInt(month));

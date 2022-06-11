@@ -13,7 +13,12 @@ exports.createAppointment = async (req, res) => {
       .lean()
       .exec();
     if (foundAppointments.length > 0)
-      return sendResponse(req, res, statusCodes.BAD_REQUEST, messages.APPOINTMENT_ALREADY_EXISTS);
+      return sendResponse(
+        req,
+        res,
+        statusCodes.BAD_REQUEST,
+        messages.APPOINTMENT_ALREADY_EXISTS
+      );
 
     const newAppointment = new appointmentModel(req.body);
     const savedAppointment = await newAppointment.save();
@@ -34,45 +39,70 @@ exports.createAppointment = async (req, res) => {
 };
 exports.getAppointments = async (req, res) => {
   try {
-    let { pageNo, search, limit, filterBy, date } = req.body;
-    date = new Date(date) || new Date();
+    let { pageNo, search, limit, filterBy, firstMonth, lastMonth, date } =
+      req.body;
+    date =
+      new Date(date).toString() === "Invalid Date"
+        ? new Date()
+        : new Date(date);
     limit = limit || 10;
     year = date.getFullYear();
     let firstDate;
     let lastDate;
     month = date.getMonth() + 1;
+    month = month < 10 ? "0" + month.toString() : month;
+    lastDate =
+      parseInt(month) === 2 && year % 4 === 0
+        ? "29"
+        : constants.months[parseInt(month)];
     search = search || "";
     filterBy === "week"
       ? ((firstDate = new Date(
           date.getTime() - 7 * 1000 * 60 * 60 * 24
         ).getDate()),
-        (lastDate = date.getDate()))
+        ((lastDate = date.getDate()),
+        (firstMonth = month),
+        (lastMonth = month)))
       : filterBy === "specificDate"
       ? ((firstDate = date.getDate()),
-        (lastDate = constants.months[date.getMonth() + 1]))
-      : ((firstDate = 1), (lastDate = constants.months[date.getMonth() + 1]));
+        (firstMonth = month),
+        (lastMonth = month))
+      : filterBy === "year"
+      ? ((firstDate = "01"),
+        (lastDate = "31"),
+        (firstMonth = "01"),
+        (lastMonth = "12"))
+      : filterBy === "month"
+      ? ((firstDate = "01"), (firstMonth = month), (lastMonth = month))
+      : ((firstDate = date.getDate()),
+        (firstMonth = month),
+        (lastDate = date.getDate()),
+        (lastMonth = month));
     const skip = Math.max(0, (parseInt(pageNo) || 1) - 1) * limit;
     const query = { isCanceled: false };
     query.$and = [
       {
         date: {
-          $gte: new Date(`${year}-${month}-${firstDate}`),
-          $lte: new Date(`${year}-${month}-${lastDate}`),
+          $gte: new Date(`${year}-${firstMonth}-${firstDate}`),
+          $lte: new Date(`${year}-${lastMonth}-${lastDate}`),
         },
       },
       {
         appointment: { $regex: search, $options: "$i" },
       },
     ];
-    const appointmentCount = await appointmentModel.countDocuments(query).exec()    
-    const pageCount = Math.ceil(appointmentCount / limit)
-    
+    const appointmentCount = await appointmentModel
+      .countDocuments(query)
+      .exec();
+    const pageCount = Math.ceil(appointmentCount / limit);
+
     const foundAppointments = await appointmentModel
       .find(query, { isCanceled: 0, __v: 0, createdAt: 0, updatedAt: 0 })
       .limit(limit)
       .skip(skip)
       .lean()
       .exec();
+
     return foundAppointments.length === 0
       ? sendResponse(
           req,
@@ -80,18 +110,11 @@ exports.getAppointments = async (req, res) => {
           statusCodes.BAD_REQUEST,
           messages.NO_APPOINTMENT_FOUND
         )
-      : sendResponse(
-          req,
-          res,
-          statusCodes.OK,
-          messages.SUCCESS,
-          {
-            appointmentCount,
-            pageCount,
-            appointments : foundAppointments
-          }
-
-        );
+      : sendResponse(req, res, statusCodes.OK, messages.SUCCESS, {
+          appointmentCount,
+          pageCount,
+          appointments: foundAppointments,
+        });
   } catch (err) {
     console.log(err);
     sendErrorResponse(
