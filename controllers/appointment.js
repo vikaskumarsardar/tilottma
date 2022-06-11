@@ -28,7 +28,6 @@ exports.createAppointment = async (req, res) => {
       _id: savedAppointment.__id,
     });
   } catch (err) {
-    console.log(err);
     sendErrorResponse(
       req,
       res,
@@ -105,7 +104,6 @@ exports.getAppointments = async (req, res) => {
       .countDocuments(query)
       .exec();
     const pageCount = Math.ceil(appointmentCount / limit);
-    console.log();
 
     const foundAppointments = await appointmentModel
       .find(query, { isCanceled: 0, __v: 0, createdAt: 0, updatedAt: 0 })
@@ -128,7 +126,6 @@ exports.getAppointments = async (req, res) => {
           appointments: foundAppointments,
         });
   } catch (err) {
-    console.log(err);
     sendErrorResponse(
       req,
       res,
@@ -150,7 +147,6 @@ exports.getAllAppointments = async (req, res) => {
       foundAppointments,
     });
   } catch (err) {
-    console.log(err);
     sendErrorResponse(
       req,
       res,
