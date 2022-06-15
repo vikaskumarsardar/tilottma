@@ -1,3 +1,4 @@
 module.exports = {
-                 appointmentRoutes : require('./appointmentRoutes') 
+                 appointmentRoutes : require('./appointmentRoutes'), 
+                 eventRoutes : require('./events')
 }

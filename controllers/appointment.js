@@ -155,3 +155,5 @@ exports.getAllAppointments = async (req, res) => {
     );
   }
 };
+
+

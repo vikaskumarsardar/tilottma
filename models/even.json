@@ -1,0 +1,22 @@
+{
+  "eventTitle": {
+    "eventTitle": "swapan hero banega",
+    "eventType": "bussiness",
+    "eventBanner": "image"
+  },
+
+  "hostInfo": {
+    "email": "swapankumarsardar737@gmail.com",
+    "mobileNo": "9304220627",
+    "alternateMobile": "7319739537"
+  },
+  "venue": {
+    "startDateAndTime": "2024-05-02",
+    "endDateAndTime": "2024-05-082",
+    "location": "pahadi Ilaka",
+    "street": "chakri",
+    "city": "jamshedpur",
+    "state": "jharkhand",
+    "ZIP": "831002"
+  }
+}

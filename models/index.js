@@ -1,3 +1,4 @@
 module.exports = {
-                appointmentModel : require('./appointments')
+                appointmentModel : require('./appointments'),
+                eventModel : require('./eventModel')
 }
